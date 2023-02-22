@@ -6,9 +6,11 @@ export default class Block extends THREE.Object3D {
         super();
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(x, y, z),
-            new THREE.MeshNormalMaterial()
+            new THREE.MeshBasicMaterial({color: "blue"})
         );
         this.add(this.mesh);
+
+        this.name = "block";
 
         Engine.machine.addCallback(this.update);
     }

@@ -32,6 +32,14 @@ export default class OpenLevel extends THREE.Object3D {
         box4.position.set(0, 0, -20);
         scene.add(box4);
 
+        let box5 = new Block(4, 4, 4);
+        box5.position.set(0, 20, 0);
+        scene.add(box5);
+
+        let box6 = new Block(4, 4, 4);
+        box6.position.set(0, -20, 0);
+        scene.add(box6);
+
         this.player.add(camera);
         camera.position.copy(this.player.cameraPosition);
         camera.lookAt(this.player.cameraTarget);

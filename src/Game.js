@@ -63,10 +63,10 @@ class Game {
     start() {
         // Start/Stop controls
         Engine.eventHandler.subscribe('inputListener', (payload) => {
-            if (payload.code === 27 && payload.isPressed) {
+            if (payload.code === "Escape" && payload.isPressed) {
                 Engine.machine.stop();
             }
-            if (payload.code === 82 && payload.isPressed) {
+            if (payload.code === "KeyR" && payload.isPressed) {
                 this.reset();
             }
         });
