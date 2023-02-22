@@ -50,10 +50,10 @@ export default class Player extends THREE.Object3D {
         if (Math.abs(this.thrustSpeed) < 0.05) {
             this.thrustSpeed = 0;
         }
-        if (Engine.inputListener.isPressed('KeyA')) {
+        if (Engine.inputListener.isPressed('ArrowLeft')) {
             this.rotateOnAxis(this.yawAxis, this.turnSpeed * delta_t);
         }
-        if (Engine.inputListener.isPressed('KeyD')) {
+        if (Engine.inputListener.isPressed('ArrowRight')) {
             this.rotateOnAxis(this.yawAxis, -1 * this.turnSpeed * delta_t);
         }
         if (Engine.inputListener.isPressed('KeyW')) {
@@ -62,10 +62,10 @@ export default class Player extends THREE.Object3D {
         if (Engine.inputListener.isPressed('KeyS')) {
             this.rotateOnAxis(this.pitchAxis, -1 * this.turnSpeed * delta_t);
         }
-        if (Engine.inputListener.isPressed('ArrowRight')) {
+        if (Engine.inputListener.isPressed('KeyD')) {
             this.rotateOnAxis(this.rollAxis, this.turnSpeed * delta_t);
         }
-        if (Engine.inputListener.isPressed('ArrowLeft')) {
+        if (Engine.inputListener.isPressed('KeyA')) {
             this.rotateOnAxis(this.rollAxis, -1 * this.turnSpeed * delta_t);
         }
         if (Engine.inputListener.isPressed('Space') && this.currentFireTimer <= 0) {
