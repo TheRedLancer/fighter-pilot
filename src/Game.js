@@ -22,9 +22,10 @@ class Game {
             });
         });
         this.setup();
-        Engine.eventHandler.subscribe('inputListener', this.launch);
+        //Engine.eventHandler.subscribe('inputListener', this.launch);
         Engine.inputListener.start();
         this.renderer.render(this.scene, this.camera);
+        this.start()
     }
 
     /**
