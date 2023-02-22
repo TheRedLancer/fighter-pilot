@@ -1,0 +1,39 @@
+name: Build and Deploy Breakout
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Build
+      run: |
+        bash ${GITHUB_WORKSPACE}/scripts/build.sh ${GITHUB_WORKSPACE}
+
+    - name: Upload to Github Pages
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: build
+
+    - name: Deploy to Github Pages
+      uses: actions/deploy-pages@v1
