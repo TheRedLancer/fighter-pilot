@@ -7,7 +7,11 @@ class Game {
     constructor() {
         this.renderer = new THREE.WebGLRenderer();
         this.canvas = this.renderer.domElement;
-        document.getElementById("c").appendChild(this.canvas);
+        let c = document.getElementById("c");
+        c.appendChild(this.canvas);
+        // c.addEventListener("click", function () {
+        //     document.body.requestPointerLock();
+        // });
         this.renderer.setSize(this.canvas.offsetWidth, this.canvas.offsetHeight);
         this.renderer.setClearColor(0xdddddd, 1);
         this.launch = this.launch.bind(this);
