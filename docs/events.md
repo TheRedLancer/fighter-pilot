@@ -16,3 +16,13 @@
         isPressed: bool,
         inputs[keyCode]: bool
     }
+
+## bulletCollision
+    {
+        see https://threejs.org/docs/#api/en/core/Raycaster
+    }
+
+## blockHit
+    {
+        block: Block
+    }
