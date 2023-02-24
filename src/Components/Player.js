@@ -1,13 +1,15 @@
 import * as THREE from 'three'
 import Engine from '../Engine/Engine';
+import Bullet from './Bullet';
 
 export default class Player extends THREE.Object3D {
     constructor() {
         super();
         this.mesh = new THREE.Mesh(
             new THREE.ConeGeometry(2, 8),
-            new THREE.MeshNormalMaterial()
+            new THREE.MeshStandardMaterial({color: "lightblue"})
         );
+        this.mesh.scale.z = 0.5;
         this.add(this.mesh);
 
         this.mesh.rotation.x = Math.PI / 2;
@@ -17,18 +19,22 @@ export default class Player extends THREE.Object3D {
         this.rollAxis = new THREE.Vector3(0, 0, 1);
         this.firePosition = new THREE.Vector3(0, 0, 4);
         this.fireDirection = new THREE.Vector3(0, 0, 1);
-        this.firePosSphere = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshNormalMaterial());
-        this.firePosSphere.position.copy(this.firePosition);
-        this.add(this.firePosSphere);
 
-        this.cameraPosition = new THREE.Vector3(0, 8, -15);
-        this.cameraTarget = new THREE.Vector3(this.position.x, this.position.y + 5, this.position.z + 5);
+        this.cameraPosition = new THREE.Object3D()
+        this.cameraPosition.position.copy(new THREE.Vector3(0, 5, -13));
+        this.add(this.cameraPosition);
+
+        this.cameraTarget = new THREE.Object3D()
+        this.cameraTarget.position.copy(new THREE.Vector3(this.position.x, this.position.y + 5, this.position.z + 5));
+        this.add(this.cameraTarget);
 
         this.thrustSpeed = 0;
+        this.maxSpeed = 20;
         this.turnSpeed = 1.5;
 
         this.fireCooldown = 0.5;
         this.currentFireTimer = 0;
+        this.fireSpeed = 200;
 
         Engine.machine.addCallback(this.update.bind(this));
     }
@@ -38,12 +44,12 @@ export default class Player extends THREE.Object3D {
             this.currentFireTimer -= delta_t;
         }
         if (Engine.inputListener.isPressed('ArrowUp')) {
-            if (this.thrustSpeed < 10) {
+            if (this.thrustSpeed < this.maxSpeed) {
                 this.thrustSpeed += 0.1;
             }
         }
         if (Engine.inputListener.isPressed('ArrowDown')) {
-            if (this.thrustSpeed > -10) {
+            if (this.thrustSpeed > -1 * this.maxSpeed) {
                 this.thrustSpeed -= 0.1;
             }
         }
@@ -78,17 +84,8 @@ export default class Player extends THREE.Object3D {
     }
 
     fire() {
-        console.log("Fire!");
-        let rc = new THREE.Raycaster(this.localToWorld(new THREE.Vector3().copy(this.firePosition)), new THREE.Vector3().copy(this.fireDirection).applyQuaternion(this.quaternion));
-        console.log(this.firePosition, new THREE.Vector3().copy(this.fireDirection).applyQuaternion(this.quaternion));
-        const intersects = rc.intersectObjects(Engine.game.getScene().children, true);
-        if (intersects.length > 0) {
-            console.log(intersects);
-        }
-        for (let i = 0; i < intersects.length; i ++) {
-            if (intersects[i].object.parent.name === "block") {
-                intersects[i].object.material.color.set(0xff0000);
-            }
-        }
+        let bullet = new Bullet(new THREE.Vector3().copy(this.fireDirection).applyQuaternion(this.quaternion).multiplyScalar(this.fireSpeed));
+        bullet.position.copy(this.localToWorld(new THREE.Vector3().copy(this.firePosition)));
+        Engine.game.getScene().add(bullet);
     }
 } 
