@@ -37,7 +37,6 @@ export default class Bullet extends THREE.Object3D {
     }
 
     checkForCollision(delta_t) {
-        
         let rc = new THREE.Raycaster(this.lastPos, new THREE.Vector3().copy(this.velocity).normalize(), 0, new THREE.Vector3().subVectors(this.lastPos, this.position).length());
         const intersects = rc.intersectObjects(Engine.game.getScene().children, true);
         if (intersects.length > 0) {
