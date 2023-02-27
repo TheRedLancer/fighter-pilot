@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import Engine from '../Engine/Engine';
 import Bullet from './Bullet';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
+import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 
 export default class Player extends THREE.Object3D {
     constructor() {
@@ -11,6 +13,18 @@ export default class Player extends THREE.Object3D {
         );
         this.mesh.scale.z = 0.5;
         this.add(this.mesh);
+        const objLoader = new OBJLoader();
+        const mtlLoader = new MTLLoader();
+
+        mtlLoader.load('assets/CamoStellarJet.mtl', (mtl) => {
+            mtl.preload();
+            objLoader.setMaterials(mtl);
+            objLoader.load('assets/CamoStellarJet.obj', (root) => {
+                this.remove(this.mesh);
+                this.mesh = root;
+                this.add(root);
+            });
+        });
 
         this.mesh.rotation.x = Math.PI / 2;
 
@@ -43,12 +57,12 @@ export default class Player extends THREE.Object3D {
         if (this.currentFireTimer > 0) {
             this.currentFireTimer -= delta_t;
         }
-        if (Engine.inputListener.isPressed('ArrowUp')) {
+        if (Engine.inputListener.isPressed('ArrowUp') || Engine.inputListener.isPressed('KeyI')) {
             if (this.thrustSpeed < this.maxSpeed) {
                 this.thrustSpeed += 0.1;
             }
         }
-        if (Engine.inputListener.isPressed('ArrowDown')) {
+        if (Engine.inputListener.isPressed('ArrowDown') || Engine.inputListener.isPressed('KeyK')) {
             if (this.thrustSpeed > -1 * this.maxSpeed) {
                 this.thrustSpeed -= 0.1;
             }
@@ -56,10 +70,10 @@ export default class Player extends THREE.Object3D {
         if (Math.abs(this.thrustSpeed) < 0.05) {
             this.thrustSpeed = 0;
         }
-        if (Engine.inputListener.isPressed('ArrowLeft')) {
+        if (Engine.inputListener.isPressed('ArrowLeft') || Engine.inputListener.isPressed('KeyJ')) {
             this.rotateOnAxis(this.yawAxis, this.turnSpeed * delta_t);
         }
-        if (Engine.inputListener.isPressed('ArrowRight')) {
+        if (Engine.inputListener.isPressed('ArrowRight') || Engine.inputListener.isPressed('KeyL')) {
             this.rotateOnAxis(this.yawAxis, -1 * this.turnSpeed * delta_t);
         }
         if (Engine.inputListener.isPressed('KeyW')) {
