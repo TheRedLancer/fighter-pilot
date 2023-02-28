@@ -13,7 +13,7 @@ class Game {
         //     document.body.requestPointerLock();
         // });
         this.renderer.setSize(this.canvas.offsetWidth, this.canvas.offsetHeight);
-        this.renderer.setClearColor(0xdddddd, 1);
+        this.renderer.setClearColor(0x404040, 1);
         this.launch = this.launch.bind(this);
     }
 
