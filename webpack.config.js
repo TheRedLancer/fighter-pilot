@@ -5,5 +5,21 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js',
+        assetModuleFilename: 'assets/[hash][ext][query]',
+    },
+    module: {
+        rules: [
+            {
+                test: /\.(mtl|obj)$/,
+                type: 'asset/resource',
+            },
+            {
+                test: /\.(png)$/,
+                type: 'asset/resource',
+                generator: {
+                    filename: "assets/[name][ext]"
+                }
+            }
+        ]
     }
 };
