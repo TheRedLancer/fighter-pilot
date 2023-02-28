@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import Engine from '../Engine/Engine';
 import Bullet from './Bullet';
 import { VOXLoader, VOXMesh } from 'three/examples/jsm/loaders/VOXLoader';
-import "../../assets/CamoStellarJet.png";
 
 export default class Player extends THREE.Object3D {
     constructor() {
