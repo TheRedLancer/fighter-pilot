@@ -1,32 +1,33 @@
 import * as THREE from 'three'
 import Engine from '../Engine/Engine';
 import Bullet from './Bullet';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
-import "../../assets/CamoStellarJet.png"
+import { VOXLoader, VOXMesh } from 'three/examples/jsm/loaders/VOXLoader';
+import "../../assets/CamoStellarJet.png";
 
 export default class Player extends THREE.Object3D {
     constructor() {
         super();
         this.mesh = new THREE.Mesh(
-            new THREE.ConeGeometry(2, 8),
-            new THREE.MeshStandardMaterial({color: "lightblue"})
+            new THREE.ConeGeometry(2, 5),
+            new THREE.MeshNormalMaterial()
         );
+        this.mesh.rotation.x = Math.PI / 2;
         this.mesh.scale.z = 0.5;
         this.add(this.mesh);
-        const objLoader = new OBJLoader();
-        const mtlLoader = new MTLLoader();
-        mtlLoader.load(require('../../assets/CamoStellarJet.mtl'), (mtl) => {
-            mtl.preload();
-            objLoader.setMaterials(mtl);
-            objLoader.load(require('../../assets/CamoStellarJet.obj'), (root) => {
-                this.remove(this.mesh);
-                this.mesh = root.children[0];
-                this.add(this.mesh);
-            });
+        const voxLoader = new VOXLoader();
+        voxLoader.load(require('../../assets/CamoStellarJet.vox'), (chunks) => {
+            this.remove(this.mesh);
+            this.mesh = new THREE.Object3D();
+            for ( let i = 0; i < chunks.length; i ++ ) {
+                const chunk = chunks[ i ];
+                const mesh = new VOXMesh( chunk );
+                mesh.scale.setScalar( 0.1 );
+                this.mesh.add( mesh );
+            }
+            this.add(this.mesh);
         });
 
-        this.shipLight = new THREE.SpotLight(0xFFFFFF, 6, 5, Math.PI / 3, 0, 0.1);
+        this.shipLight = new THREE.SpotLight(0xFFFFFF, 0.5, 5, Math.PI / 3, 0, 0.1);
         this.shipLight.position.set(0, 3, 0);
         this.shipLight.target = new THREE.Object3D();
         this.add(this.shipLight);
@@ -54,7 +55,7 @@ export default class Player extends THREE.Object3D {
         this.yawSpeed = 1;
         this.maxYaw = 0.2;
         this.currentYaw = 0;
-        this.rollSpeed = 1;
+        this.rollSpeed = 1.5;
         this.currentRoll = 0;
         this.maxRoll = 0.2;
         this.pitchSpeed = 1;

@@ -10,7 +10,7 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(mtl|obj)$/,
+                test: /\.(mtl|obj|vox)$/,
                 type: 'asset/resource',
             },
             {

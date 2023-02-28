@@ -48,7 +48,7 @@ export default class OpenLevel extends THREE.Object3D {
         light.position.copy(sun.position);
         scene.add(light);
 
-        let ambient = new THREE.AmbientLight(0xFFFFFF, 0.7);
+        let ambient = new THREE.AmbientLight(0xFFFFFF, 0.3);
         scene.add(ambient);
 
         this.player.add(camera);
