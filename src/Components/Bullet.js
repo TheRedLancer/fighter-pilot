@@ -9,7 +9,7 @@ export default class Bullet extends THREE.Object3D {
         super();
         this.mesh = new THREE.Mesh(
             new THREE.CylinderGeometry(0.2, 0.2, 2),
-            new THREE.MeshBasicMaterial({color: "black"})
+            new THREE.MeshBasicMaterial({color: 0x1FFF0F})
         );
         this.add(this.mesh);
         this.rotateX(Math.PI / 2);

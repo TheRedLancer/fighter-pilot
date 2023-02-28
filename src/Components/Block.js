@@ -6,7 +6,7 @@ export default class Block extends THREE.Object3D {
         super();
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(size, size, size),
-            new THREE.MeshStandardMaterial({color: "grey", side: THREE.DoubleSide})
+            new THREE.MeshStandardMaterial({color: "blue", side: THREE.DoubleSide})
         );
         this.add(this.mesh);
 

@@ -37,10 +37,6 @@ export default class OpenLevel extends THREE.Object3D {
         ground.rotateX(- Math.PI / 2);
         scene.add(ground);
 
-        const rectLight = new THREE.RectAreaLight( 0x00FF00, 0.1, 400, 400 );
-        rectLight.rotateX(Math.PI / 2);
-        scene.add(rectLight);
-
         let sun = new THREE.Mesh(
             new THREE.SphereGeometry(20, 20),
             new THREE.MeshBasicMaterial({color: "yellow"})
