@@ -20,4 +20,4 @@ if [ ! -d "$buildDist" ]; then
 fi
 cp ./index.html $buildFolder
 cp ./style.css $buildFolder
-cp ./dist/* $buildDist
+cp -r ./dist/* $buildDist
