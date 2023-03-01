@@ -14,9 +14,8 @@ export default class Player extends THREE.Object3D {
         this.playerModel.rotation.x = Math.PI / 2;
         this.playerModel.scale.z = 0.5;
         this.add(this.playerModel);
-
-        const voxLoader = new VOXLoader();
-        voxLoader.load(require('../../assets/CamoStellarJet.vox'), (chunks) => {
+ 
+        new VOXLoader().load(require('../../assets/CamoStellarJet.vox'), (chunks) => {
             this.remove(this.playerModel);
             this.playerModel = new THREE.Object3D();
             for ( let i = 0; i < chunks.length; i ++ ) {
@@ -31,13 +30,6 @@ export default class Player extends THREE.Object3D {
             this.playerModel.add(this.shipLight.target);
             this.playerModel.add(this.cameraPosition);
             this.playerModel.add(this.cameraTarget);
-            this.noseDir = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.1, 0.1, 30),
-                new THREE.MeshBasicMaterial({color: "blue"})
-            );
-            this.noseDir.rotateX(Math.PI / 2);
-            this.noseDir.position.z = 15;
-            this.playerModel.add(this.noseDir);
         });
 
         this.shipLight = new THREE.SpotLight(0xFFFFFF, 1, 5, Math.PI / 3, 0, 0.1);
@@ -47,14 +39,10 @@ export default class Player extends THREE.Object3D {
         this.pitchAxis = new THREE.Vector3(1, 0, 0);
         this.yawAxis = new THREE.Vector3(0, 1, 0);
         this.rollAxis = new THREE.Vector3(0, 0, 1);
-        this.firePositions = [
-            [new THREE.Vector3(-1.3, -0.1, 2), new THREE.Vector3(1, 0, 110).normalize()],
-            [new THREE.Vector3(1.3 , -0.1, 2), new THREE.Vector3(-1, 0, 110).normalize()]
-        ];
 
         this.cameraPosition = new THREE.Object3D()
         this.cameraPosition.position.set(0, 4, -7);
-        this.cameraPosition.position.set(0, 40, -7);
+        //this.cameraPosition.position.set(0, 40, -7);
         this.cameraTarget = new THREE.Object3D()
         this.cameraTarget.position.set(this.position.x, this.position.y + 2, this.position.z + 7);
         this.playerModel.add(this.cameraPosition);
@@ -83,15 +71,20 @@ export default class Player extends THREE.Object3D {
         this.currentFireCount = 0;
         this.fireBurstDelay = 0.1;
         this.currentFireBurstDelay = 0;
-        this.fireSpeed = 200;
+        this.bulletSpeed = 200;
 
-        this.noseDir = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.1, 0.1, 30),
-            new THREE.MeshBasicMaterial({color: "red"})
+        this.firePositions = [new THREE.Object3D(), new THREE.Object3D()];
+        this.add(this.firePositions[0]);
+        this.add(this.firePositions[1]);
+        this.firePositions[0].position.set(-1.3, -0.1, 2);
+        this.firePositions[1].position.set(1.3 , -0.1, 2);
+
+        this.fireTarget = new THREE.Mesh(
+            new THREE.RingGeometry(2, 3, 6, 1),
+            new THREE.MeshBasicMaterial({color: 0xff4000, side: THREE.DoubleSide })
         );
-        this.noseDir.rotateX(Math.PI / 2);
-        this.noseDir.position.z = 15;
-        this.add(this.noseDir);
+        this.fireTarget.position.z = 80;
+        this.add(this.fireTarget);
 
         Engine.machine.addCallback(this.update.bind(this));
     }
@@ -105,6 +98,12 @@ export default class Player extends THREE.Object3D {
         let newPos = new THREE.Vector3(0, 0, this.currentSpeed * delta_t);
         newPos.applyQuaternion(this.quaternion);
         this.position.add(newPos);
+
+        this.updateFireTarget();
+    }
+
+    updateFireTarget() {
+        return;
     }
 
     getMovementInput() {
@@ -202,15 +201,14 @@ export default class Player extends THREE.Object3D {
     }
 
     fire() {
-        console.log(this.playerModel.quaternion, this.quaternion);
+        //console.log(this.playerModel.quaternion, this.quaternion);
         this.playerModel.updateMatrixWorld();
         this.updateMatrixWorld();
-        for (const [firePos, fireDir] of this.firePositions) {
-            let bulletDir = new THREE.Vector3().copy(new THREE.Vector3(0, 0, 1)).applyQuaternion(this.getWorldQuaternion(new THREE.Quaternion()));
-            //let bulletDir = new THREE.Vector3().copy(new THREE.Vector3().copy(this.position)).sub(this.localToWorld(this.noseDir.position));
+        for (const firePos of this.firePositions) {
+            let bulletDir = new THREE.Vector3().copy(this.fireTarget.getWorldPosition(new THREE.Vector3()).sub(firePos.getWorldPosition(new THREE.Vector3()))).normalize();
             // let bullet = new Bullet(bulletDir.multiplyScalar(this.fireSpeed));
-            let bullet = new Bullet(bulletDir);
-            bullet.position.copy(this.playerModel.localToWorld(new THREE.Vector3().copy(firePos)));
+            let bullet = new Bullet(bulletDir.multiplyScalar(this.bulletSpeed));
+            bullet.position.copy(this.playerModel.localToWorld(new THREE.Vector3().copy(firePos.position)));
             Engine.game.getScene().add(bullet);
         }
     }
