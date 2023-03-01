@@ -18,6 +18,7 @@ export default class Bullet extends THREE.Object3D {
 
         /**@type {THREE.Vector3} */
         this.velocity = velocity;
+        this.setRotationFromAxisAngle(this.velocity, 0);
         this.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3().copy(velocity).normalize());
 
         this.lastPos = new THREE.Vector3().copy(this.position);

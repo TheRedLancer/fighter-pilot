@@ -18,8 +18,8 @@ export default class OpenLevel extends THREE.Object3D {
      */
     load(scene, camera) {
         this.player = new Player();
-        this.player.position.set(-190, 80, -190)
-        this.player.rotateY(Math.PI / 4)
+        this.player.position.set(-190, 80, -190);
+        this.player.rotateY(Math.PI / 4);
         scene.add(this.player);
  
         let blockSize = 10;
@@ -51,9 +51,7 @@ export default class OpenLevel extends THREE.Object3D {
         let ambient = new THREE.AmbientLight(0xFFFFFF, 0.3);
         scene.add(ambient);
 
-        this.player.add(camera);
-        camera.position.copy(this.player.cameraPosition.position);
-        camera.lookAt(this.player.localToWorld(this.player.cameraTarget.position));
+        this.player.addCamera(camera);
         return this;
     }
 
