@@ -26,11 +26,18 @@ export default class Player extends THREE.Object3D {
                 this.playerModel.add( mesh );
             }
             this.add(this.playerModel);
-            this.playerModel.add(this.camera);
+            //this.playerModel.add(this.camera);
             this.playerModel.add(this.shipLight);
             this.playerModel.add(this.shipLight.target);
             this.playerModel.add(this.cameraPosition);
             this.playerModel.add(this.cameraTarget);
+            this.noseDir = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.1, 0.1, 30),
+                new THREE.MeshBasicMaterial({color: "blue"})
+            );
+            this.noseDir.rotateX(Math.PI / 2);
+            this.noseDir.position.z = 15;
+            this.playerModel.add(this.noseDir);
         });
 
         this.shipLight = new THREE.SpotLight(0xFFFFFF, 1, 5, Math.PI / 3, 0, 0.1);
@@ -47,6 +54,7 @@ export default class Player extends THREE.Object3D {
 
         this.cameraPosition = new THREE.Object3D()
         this.cameraPosition.position.set(0, 4, -7);
+        this.cameraPosition.position.set(0, 40, -7);
         this.cameraTarget = new THREE.Object3D()
         this.cameraTarget.position.set(this.position.x, this.position.y + 2, this.position.z + 7);
         this.playerModel.add(this.cameraPosition);
@@ -76,6 +84,14 @@ export default class Player extends THREE.Object3D {
         this.fireBurstDelay = 0.1;
         this.currentFireBurstDelay = 0;
         this.fireSpeed = 200;
+
+        this.noseDir = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.1, 0.1, 30),
+            new THREE.MeshBasicMaterial({color: "red"})
+        );
+        this.noseDir.rotateX(Math.PI / 2);
+        this.noseDir.position.z = 15;
+        this.add(this.noseDir);
 
         Engine.machine.addCallback(this.update.bind(this));
     }
@@ -149,6 +165,7 @@ export default class Player extends THREE.Object3D {
         }
         let rotationRawNormal = new THREE.Vector3(0, 0, 1).cross(rotateToRaw);
         let rotationScaledNormal = new THREE.Vector3().copy(rotationRawNormal).multiply(this.rotateSpeeds);
+        rotationScaledNormal.z = 0;
         //console.log(rotationRawNormal, rotationScaledNormal);
         if (rotateToRaw.length() != 0) {
             this.rotateOnAxis(rotationScaledNormal, this.turnSpeed * delta_t);
@@ -185,9 +202,14 @@ export default class Player extends THREE.Object3D {
     }
 
     fire() {
+        console.log(this.playerModel.quaternion, this.quaternion);
+        this.playerModel.updateMatrixWorld();
+        this.updateMatrixWorld();
         for (const [firePos, fireDir] of this.firePositions) {
-            let bulletDir = new THREE.Vector3().copy(fireDir).applyEuler(this.playerModel.rotation).applyEuler(this.rotation);
-            let bullet = new Bullet(bulletDir.multiplyScalar(this.fireSpeed));
+            let bulletDir = new THREE.Vector3().copy(new THREE.Vector3(0, 0, 1)).applyQuaternion(this.getWorldQuaternion(new THREE.Quaternion()));
+            //let bulletDir = new THREE.Vector3().copy(new THREE.Vector3().copy(this.position)).sub(this.localToWorld(this.noseDir.position));
+            // let bullet = new Bullet(bulletDir.multiplyScalar(this.fireSpeed));
+            let bullet = new Bullet(bulletDir);
             bullet.position.copy(this.playerModel.localToWorld(new THREE.Vector3().copy(firePos)));
             Engine.game.getScene().add(bullet);
         }
