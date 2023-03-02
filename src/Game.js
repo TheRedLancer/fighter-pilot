@@ -53,8 +53,7 @@ class Game {
     setup() {
         Engine.game = this;
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, this.canvas.offsetWidth / this.canvas.offsetHeight, 0.1, 2000);
-        //this.scene.add(this.camera);
+        this.camera = new THREE.PerspectiveCamera(75, this.canvas.offsetWidth / this.canvas.offsetHeight, 1, 2000);
 
         // Load initial level
         this.level = new OpenLevel().load(this.scene, this.camera);
@@ -85,8 +84,9 @@ class Game {
 
     reset() {
         Engine.clear();
-        while(this.scene.children.length > 0){ 
-            this.scene.remove(this.scene.children[0]); 
+        // TODO: Dispose of all materials and geometries
+        while(this.scene.children.length > 0){
+            this.scene.remove(this.scene.children[0]);
         }
         this.main();
     }

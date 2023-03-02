@@ -3,7 +3,7 @@ import Engine from '../Engine/Engine';
 
 export default class Bullet extends THREE.Object3D {
     /**
-     * @param {THREE.Vector3} velocity 
+     * @param {THREE.Vector3} velocity in World Coordinates
      */
     constructor(velocity) {
         super();
@@ -12,7 +12,6 @@ export default class Bullet extends THREE.Object3D {
             new THREE.MeshBasicMaterial({color: 0x1FFF0F})
         );
         this.add(this.mesh);
-        this.rotateX(Math.PI / 2);
 
         this.name = "bullet";
 

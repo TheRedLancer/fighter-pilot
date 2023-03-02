@@ -1,12 +1,14 @@
 import * as THREE from 'three'
 import Engine from '../Engine/Engine';
 
+const mat = new THREE.MeshStandardMaterial({color: 0x00FFFF , side: THREE.DoubleSide})
+
 export default class Block extends THREE.Object3D {
     constructor(size) {
         super();
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(size, size, size),
-            new THREE.MeshStandardMaterial({color: 0x00FFFF , side: THREE.DoubleSide})
+            mat
         );
         this.add(this.mesh);
 
@@ -34,6 +36,7 @@ export default class Block extends THREE.Object3D {
 
     destroy() {
         Engine.eventHandler.unsubscribe("bulletCollision", this.onBulletCollision);
+        this.mesh.geometry.dispose();
         this.removeFromParent();
     }
 } 
