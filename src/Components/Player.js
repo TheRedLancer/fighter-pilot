@@ -12,11 +12,14 @@ export default class Player extends THREE.Object3D {
             new THREE.MeshNormalMaterial()
         );
         this.playerModel.rotation.x = Math.PI / 2;
-        this.playerModel.scale.z = 0.5;
         this.add(this.playerModel);
  
         new VOXLoader().load(require('../../assets/CamoStellarJet.vox'), (chunks) => {
             this.remove(this.playerModel);
+            this.playerModel.geometry.dispose();
+            this.playerModel.geometry = null;
+            this.playerModel.material.dispose();
+            this.playerModel.material = null;
             this.playerModel = new THREE.Object3D();
             for ( let i = 0; i < chunks.length; i ++ ) {
                 const chunk = chunks[ i ];
@@ -24,13 +27,23 @@ export default class Player extends THREE.Object3D {
                 mesh.scale.setScalar( 0.1 );
                 this.playerModel.add( mesh );
             }
+            console.log(this.playerModel);
             this.add(this.playerModel);
             //this.playerModel.add(this.camera);
             this.playerModel.add(this.shipLight);
             this.playerModel.add(this.shipLight.target);
             this.playerModel.add(this.cameraPosition);
             this.playerModel.add(this.cameraTarget);
+            this.fireTarget = new THREE.Mesh(
+                new THREE.RingGeometry(2, 3, 6, 1),
+                new THREE.MeshBasicMaterial({color: 0xff4000, side: THREE.DoubleSide })
+            );
+            this.fireTarget.position.z = 80;
+            this.playerModel.add(this.fireTarget);
         });
+
+        /**@type {THREE.PerspectiveCamera} */
+        this.camera = undefined;
 
         this.shipLight = new THREE.SpotLight(0xFFFFFF, 1, 5, Math.PI / 3, 0, 0.1);
         this.shipLight.position.set(0, 4, -0.5);
@@ -42,28 +55,26 @@ export default class Player extends THREE.Object3D {
 
         this.cameraPosition = new THREE.Object3D()
         this.cameraPosition.position.set(0, 4, -7);
-        //this.cameraPosition.position.set(0, 40, -7);
         this.cameraTarget = new THREE.Object3D()
         this.cameraTarget.position.set(this.position.x, this.position.y + 2, this.position.z + 7);
-        this.playerModel.add(this.cameraPosition);
-        this.playerModel.add(this.cameraTarget);
+        this.add(this.cameraPosition);
+        this.add(this.cameraTarget);
 
         this.currentSpeed = 0;
         this.thrustForce = 40;
         this.brakeForce = 80;
         this.cruiseSpeed = 25;
         this.maxSpeed = 50;
-        this.turnSpeed = 2;
 
-        this.pitchSpeed = 1;
-        this.yawSpeed = 0.5;
-        this.rollSpeed = 2;
-        this.rotateSpeeds = new THREE.Vector3(this.pitchSpeed, this.yawSpeed, this.rollSpeed);
+        this.pitchSpeed = 2;
+        this.yawSpeed = 2;
+        this.rollSpeed = 3;
         this.maxRotation = new THREE.Vector3(
             THREE.MathUtils.DEG2RAD * 15, // maxYaw
             THREE.MathUtils.DEG2RAD * 15, // maxPitch
             THREE.MathUtils.DEG2RAD * 15  // maxRoll
         );
+        this.rotationReturnForce = 5;
         
         this.fireDelay = 0.6;
         this.currentFireDelay = 0;
@@ -84,7 +95,6 @@ export default class Player extends THREE.Object3D {
             new THREE.MeshBasicMaterial({color: 0xff4000, side: THREE.DoubleSide })
         );
         this.fireTarget.position.z = 80;
-        this.add(this.fireTarget);
 
         Engine.machine.addCallback(this.update.bind(this));
     }
@@ -119,16 +129,16 @@ export default class Player extends THREE.Object3D {
             currentThrottleRaw -= 1;
         }
         if (Engine.inputListener.isPressed('ArrowLeft') || Engine.inputListener.isPressed('KeyJ')) {
-            rotateDirectionRaw.x += 1;
+            rotateDirectionRaw.y += 1;
         }
         if (Engine.inputListener.isPressed('ArrowRight') || Engine.inputListener.isPressed('KeyL')) {
-            rotateDirectionRaw.x += -1;
-        }
-        if (Engine.inputListener.isPressed('KeyW')) {
             rotateDirectionRaw.y += -1;
         }
+        if (Engine.inputListener.isPressed('KeyW')) {
+            rotateDirectionRaw.x += 1;
+        }
         if (Engine.inputListener.isPressed('KeyS')) {
-            rotateDirectionRaw.y += 1;
+            rotateDirectionRaw.x += -1;
         }
         if (Engine.inputListener.isPressed('KeyD')) {
             rotateDirectionRaw.z += 1;
@@ -142,9 +152,9 @@ export default class Player extends THREE.Object3D {
     /**
      * 
      * @param {float} throttleRaw power of throttleRaw forward
-     * @param {THREE.Vector3} rotateToRaw direction to rotate towards in form (pitch, yaw, roll) 
+     * @param {THREE.Vector3} rawRotationInput direction to rotate towards in form (pitch, yaw, roll) 
      */
-    processMovementInput(throttleRaw, rotateToRaw, delta_t) {
+    processMovementInput(throttleRaw, rawRotationInput, delta_t) {
         //console.log(throttleRaw, this.currentSpeed);
         let totalThrust = (throttleRaw * this.thrustForce * delta_t);
         if (throttleRaw) {
@@ -162,14 +172,19 @@ export default class Player extends THREE.Object3D {
         } else if (this.currentSpeed < -1 * this.cruiseSpeed) {
             this.currentSpeed += this.brakeForce * delta_t;
         }
-        let rotationRawNormal = new THREE.Vector3(0, 0, 1).cross(rotateToRaw);
-        let rotationScaledNormal = new THREE.Vector3().copy(rotationRawNormal).multiply(this.rotateSpeeds);
-        rotationScaledNormal.z = 0;
-        //console.log(rotationRawNormal, rotationScaledNormal);
-        if (rotateToRaw.length() != 0) {
-            this.rotateOnAxis(rotationScaledNormal, this.turnSpeed * delta_t);
-            this.rotateOnAxis(new THREE.Vector3(0, 0, 1), rotateToRaw.z * this.turnSpeed * delta_t);
+        if (rawRotationInput.length() != 0) {
+            this.rotateOnAxis(new THREE.Vector3(1, 0, 0), rawRotationInput.x * this.pitchSpeed * delta_t);
+            this.rotateOnAxis(new THREE.Vector3(0, 1, 0), rawRotationInput.y * this.yawSpeed * delta_t);
+            this.rotateOnAxis(new THREE.Vector3(0, 0, 1), rawRotationInput.z * this.rollSpeed * delta_t);
         }
+        this.updateCameraRotation(rawRotationInput, delta_t);
+    }
+
+    updateCameraRotation(rawRotationInput, delta_t) {
+        // have the camera move up when the player moves down,
+        // then have it restore to (0,0,0) when
+        // have to move camera to be at camera pos
+        this.camera.lookAt(this.fireTarget.getWorldPosition(new THREE.Vector3()));
     }
 
     fireDetection(delta_t) {
