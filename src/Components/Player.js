@@ -66,8 +66,8 @@ export default class Player extends THREE.Object3D {
         this.cruiseSpeed = 25;
         this.maxSpeed = 50;
 
-        this.pitchSpeed = 2;
-        this.yawSpeed = 2;
+        this.pitchSpeed = 1.5;
+        this.yawSpeed = 1.5;
         this.rollSpeed = 3;
         this.maxRotation = new THREE.Vector3(
             THREE.MathUtils.DEG2RAD * 15, // maxYaw
@@ -120,30 +120,36 @@ export default class Player extends THREE.Object3D {
         // Controls
         let rotateDirectionRaw = new THREE.Vector3(0, 0, 0);
         let currentThrottleRaw = 0;
-        let throttleUp = Engine.inputListener.isPressed('ArrowUp') || Engine.inputListener.isPressed('KeyI')
+        let pitchDown = Engine.inputListener.isPressed('ArrowUp') || Engine.inputListener.isPressed('KeyI');
+        let pitchUp = Engine.inputListener.isPressed('ArrowDown') || Engine.inputListener.isPressed('KeyK');
+        let yawLeft = Engine.inputListener.isPressed('ArrowLeft') || Engine.inputListener.isPressed('KeyJ') || Engine.inputListener.isPressed('KeyQ');
+        let yawRight = Engine.inputListener.isPressed('ArrowRight') || Engine.inputListener.isPressed('KeyL') || Engine.inputListener.isPressed('KeyE');
+        let throttleUp = Engine.inputListener.isPressed('KeyW');
+        let throttleDown = Engine.inputListener.isPressed('KeyS');
+        let rollLeft = Engine.inputListener.isPressed('KeyA');
+        let rollRight = Engine.inputListener.isPressed('KeyD');
         if (throttleUp) {
             currentThrottleRaw += 1;
         }
-        let throttleDown = Engine.inputListener.isPressed('ArrowDown') || Engine.inputListener.isPressed('KeyK')
         if (throttleDown) {
             currentThrottleRaw -= 1;
         }
-        if (Engine.inputListener.isPressed('ArrowLeft') || Engine.inputListener.isPressed('KeyJ')) {
+        if (yawLeft) {
             rotateDirectionRaw.y += 1;
         }
-        if (Engine.inputListener.isPressed('ArrowRight') || Engine.inputListener.isPressed('KeyL')) {
+        if (yawRight) {
             rotateDirectionRaw.y += -1;
         }
-        if (Engine.inputListener.isPressed('KeyW')) {
+        if (pitchDown) {
             rotateDirectionRaw.x += 1;
         }
-        if (Engine.inputListener.isPressed('KeyS')) {
+        if (pitchUp) {
             rotateDirectionRaw.x += -1;
         }
-        if (Engine.inputListener.isPressed('KeyD')) {
+        if (rollRight) {
             rotateDirectionRaw.z += 1;
         }
-        if (Engine.inputListener.isPressed('KeyA')) {
+        if (rollLeft) {
             rotateDirectionRaw.z += -1;
         }
         return [currentThrottleRaw, rotateDirectionRaw]
@@ -177,15 +183,15 @@ export default class Player extends THREE.Object3D {
             this.rotateOnAxis(new THREE.Vector3(0, 1, 0), rawRotationInput.y * this.yawSpeed * delta_t);
             this.rotateOnAxis(new THREE.Vector3(0, 0, 1), rawRotationInput.z * this.rollSpeed * delta_t);
         }
-        this.updateCameraRotation(rawRotationInput, delta_t);
+        //this.updateCameraRotation(rawRotationInput, delta_t);
     }
 
-    updateCameraRotation(rawRotationInput, delta_t) {
-        // have the camera move up when the player moves down,
-        // then have it restore to (0,0,0) when
-        // have to move camera to be at camera pos
-        this.camera.lookAt(this.fireTarget.getWorldPosition(new THREE.Vector3()));
-    }
+    // updateCameraRotation(rawRotationInput, delta_t) {
+    //     // have the camera move up when the player moves down,
+    //     // then have it restore to (0,0,0) when
+    //     // have to move camera to be at camera pos
+    //     this.camera.lookAt(this.fireTarget.getWorldPosition(new THREE.Vector3()));
+    // }
 
     fireDetection(delta_t) {
         // If we have another shot to fire,
