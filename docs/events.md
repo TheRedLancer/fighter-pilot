@@ -26,3 +26,9 @@
     {
         block: Block
     }
+
+## playerCollision
+    {
+        player: Player
+        other: Component
+    }

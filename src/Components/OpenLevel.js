@@ -8,7 +8,7 @@ export default class OpenLevel extends THREE.Object3D {
         this.maxX = 200;
         this.maxY = 400;
         this.maxZ = 200;
-        this.boxes = [];
+        this.components = [];
     }
 
     /**
@@ -18,10 +18,11 @@ export default class OpenLevel extends THREE.Object3D {
      * @returns {OpenLevel} this
      */
     load(scene, camera) {
-        this.player = new Player();
+        this.player = new Player(this);
         this.player.addCamera(camera);
         this.player.position.set(-190, 80, -190);
         this.player.rotateY(Math.PI / 4);
+        this.components.add(this.player);
         scene.add(this.player);
  
         let blockSize = 10;
@@ -29,6 +30,7 @@ export default class OpenLevel extends THREE.Object3D {
         for (let i = 0; i < 20; i++) {
             let box = new Block(blockSize);
             box.position.set(this.randomIntFromInterval(-120, 120), this.randomIntFromInterval(40, 180), this.randomIntFromInterval(-120, 120));
+            this.components.push(box);
             scene.add(box);
         }
 
@@ -58,5 +60,16 @@ export default class OpenLevel extends THREE.Object3D {
 
     randomIntFromInterval(min, max) { // min and max included 
         return Math.floor(Math.random() * (max - min + 1) + min)
+    }
+
+    getColliders(tag) {
+        return this.components.filter(c => {
+            for (const t of c.tags) {
+                if (t === tag) {
+                    return true;
+                }
+            }
+            return false;
+        })
     }
 }

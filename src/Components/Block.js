@@ -13,6 +13,7 @@ export default class Block extends THREE.Object3D {
         this.add(this.mesh);
 
         this.name = "block";
+        this.tags = ["obstacle", "block"];
 
         this.rotateAxis = new THREE.Vector3().randomDirection();
         this.rotateSpeed = 0.5;
@@ -25,6 +26,10 @@ export default class Block extends THREE.Object3D {
 
     update(delta_t) {
         this.rotateOnAxis(this.rotateAxis, this.rotateSpeed * delta_t);
+    }
+
+    getMesh() {
+        return this.mesh;
     }
 
     onBulletCollision(payload) {

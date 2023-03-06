@@ -4,8 +4,12 @@ import Bullet from './Bullet';
 import { VOXLoader, VOXMesh } from 'three/examples/jsm/loaders/VOXLoader';
 
 export default class Player extends THREE.Object3D {
-    constructor() {
+    constructor(level) {
         super();
+
+        this.level = level;
+        this.name = "player";
+        this.tags = ["player"];
 
         this.playerModel = new THREE.Mesh(
             new THREE.ConeGeometry(2, 5),
@@ -100,6 +104,7 @@ export default class Player extends THREE.Object3D {
     }
 
     update(delta_t) {
+        this.detectCollisions(delta_t);
         this.fireDetection(delta_t);
 
         let [currentThrottleRaw, rotateDirectionRaw] = this.getMovementInput();
@@ -110,6 +115,21 @@ export default class Player extends THREE.Object3D {
         this.position.add(newPos);
 
         this.updateFireTarget();
+    }
+
+    detectCollisions(delta_t) {
+        for (const other of this.level.getColliders("obstacle")) {
+            if (Engine.detectCollisionComponents(this, other)) {
+                Engine.eventHandler.dispatch("playerCollision", {
+                    player: this,
+                    other: other
+                });
+            }
+        }
+    }
+
+    getMesh() {
+        return this.playerModel;
     }
 
     updateFireTarget() {
